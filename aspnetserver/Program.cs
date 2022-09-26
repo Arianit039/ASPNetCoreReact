@@ -1,8 +1,5 @@
 using aspnetserver.Data;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerUI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,15 +11,14 @@ builder.Services.AddCors(options =>
             builder
             .AllowAnyMethod()
             .AllowAnyHeader()
-            .WithOrigins("http://localhost:3000", "https://appname.azurestaticapps.net");
-
+            .WithOrigins("http://localhost:3000", "https://purple-bay-04c752803.1.azurestaticapps.net");
         });
 });
 
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(setupAction:swaggerGenOptions =>
+builder.Services.AddSwaggerGen(swaggerGenOptions =>
 {
     swaggerGenOptions.SwaggerDoc("v1", new OpenApiInfo { Title = "Lab 1 Project", Version = "v1" });
 });
@@ -30,11 +26,11 @@ builder.Services.AddSwaggerGen(setupAction:swaggerGenOptions =>
 var app = builder.Build();
 
 app.UseSwagger();
-app.UseSwaggerUI(setupAction:SwaggerUIOptions =>
+app.UseSwaggerUI(swaggerUIOptions =>
 {
-    SwaggerUIOptions.DocumentTitle = "Lab 1 Project";
-    SwaggerUIOptions.SwaggerEndpoint("/swagger/v1/swagger.json", "Project Description.");
-    SwaggerUIOptions.RoutePrefix = String.Empty;
+    swaggerUIOptions.DocumentTitle = "Lab 1 Project";
+    swaggerUIOptions.SwaggerEndpoint("/swagger/v1/swagger.json", "Web API serving a very simple Post model.");
+    swaggerUIOptions.RoutePrefix = string.Empty;
 });
 
 app.UseHttpsRedirection();
@@ -48,17 +44,15 @@ app.MapGet("/get-post-by-id/{postId}", async (int postId) =>
 {
     Post postToReturn = await PostsRepository.GetPostByIdAsync(postId);
 
-    if (postToReturn == null)
+    if (postToReturn != null)
     {
         return Results.Ok(postToReturn);
-
     }
-        else
+    else
     {
         return Results.BadRequest();
     }
-}).WithTags ("Posts Endpoints");
-
+}).WithTags("Posts Endpoints");
 
 app.MapPost("/create-post", async (Post postToCreate) =>
 {
@@ -66,8 +60,7 @@ app.MapPost("/create-post", async (Post postToCreate) =>
 
     if (createSuccessful)
     {
-        return Results.Ok("create successful");
-
+        return Results.Ok("Create successful.");
     }
     else
     {
@@ -81,8 +74,7 @@ app.MapPut("/update-post", async (Post postToUpdate) =>
 
     if (updateSuccessful)
     {
-        return Results.Ok("Update successful");
-
+        return Results.Ok("Update successful.");
     }
     else
     {
@@ -90,14 +82,13 @@ app.MapPut("/update-post", async (Post postToUpdate) =>
     }
 }).WithTags("Posts Endpoints");
 
-app.MapGet("/delete-post-by-id/{postId}", async (int postId) =>
+app.MapDelete("/delete-post-by-id/{postId}", async (int postId) =>
 {
     bool deleteSuccessful = await PostsRepository.DeletePostAsync(postId);
 
     if (deleteSuccessful)
     {
-        return Results.Ok("Delete successful");
-
+        return Results.Ok("Delete successful.");
     }
     else
     {
